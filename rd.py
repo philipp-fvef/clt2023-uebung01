@@ -3,37 +3,23 @@
 
 
 # Input
-word = "Hans isst ein Käsebrot"
+word = "ein Kaesebrot isst Hans"
 word = word.split(" ")
 
 # Grammatik
-T = ["Hans", "isst", "Käsebrot", "ein"]
+T = ["Hans", "isst", "Kaesebrot", "ein"]
 N = ["S", "NP", "VP", "V", "N", "Det"]
 S = ["S"]
-P = ["S → NP VP", "NP → Det N", "VP → V NP", "V → isst", "NP → Hans", "Det → ein", "N → Käsebrot"]
+P = ["S → NP VP", "NP → Det N", "VP → V NP", "V → isst", "NP → Hans", "Det → ein", "N → Kaesebrot"]
 
 
-# for production in P:
-#     print("")
-#
-#     sides = production.split("→")
-#     left_side = sides[0].strip()
-#     right_side = sides[1].strip()
-#
-#     print(f"<{left_side}> geht nach <{right_side}>")
-#
-#     if left_side in S: print("Start")
-#     elif right_side in T: print("Terminal")
-#     else: print("Expansion")
+def parse_S(sentence: list) -> bool:
 
-
-def parse_S(sentence: list, start: int, end: int) -> bool:
-
-    for j in range(start, end):
-        print(j)
+    for j in range(1, len(sentence)):
+        print("S", j)
         print(f"trying <{P[0]}> on")
-        print(sentence[start:j], sentence[j:end])
-        if parse_NP(sentence[start:j], 0, j) and parse_VP(sentence[j:end], j, end):
+        print(sentence[:j], sentence[j:])
+        if parse_NP(sentence[:j]) and parse_VP(sentence[j:]):
             print("returned True")
             return True
 
@@ -41,23 +27,21 @@ def parse_S(sentence: list, start: int, end: int) -> bool:
     return False
 
 
-def parse_NP(sentence: list, start: int, end: int) -> bool:
+def parse_NP(sentence: list) -> bool:
     print("parsing NP")
 
-    for j in range(start, end):
-        print(j)
-        print(f"trying <{P[1]}> on")
-        print(sentence[start:j], sentence[j:end])
-        if parse_Det(sentence[start:j], 0, j) and parse_N(sentence[j:end], j, end):
-            print("returned True")
-            return True
-        print("returned False")
+    if len(sentence) > 1:
+        for j in range(1, len(sentence)):
+            print(f"{j} - trying <{P[1]}> on")
+            print(sentence[:j], sentence[j:])
+            if parse_Det(sentence[:j]) and parse_N(sentence[j:]):
+                print("returned True")
+                return True
+            print("returned False")
 
-    for j in range(start, end):
-        print(j)
-        print(f"trying <{P[4]}> on")
-        print(sentence[start:j], sentence[j:end])
-        if str(sentence) in "Hans":
+    if len(sentence) == 1:
+        print(f"trying <{P[4]}> on {sentence}")
+        if len(sentence) == 1 and sentence[0] == "Hans":
             print("returned True")
             return True
         print("returned False")
@@ -66,64 +50,58 @@ def parse_NP(sentence: list, start: int, end: int) -> bool:
     return False
 
 
-def parse_VP(sentence: list, start: int, end: int) -> bool:
+def parse_VP(sentence: list) -> bool:
     print("parsing VP")
 
-    for j in range(start, end):
-        print(j)
-        print(f"trying <{P[2]}> on")
-        print(sentence[start:j], sentence[j:end])
-        if parse_V(sentence[start:j], 0, j) and parse_NP(sentence[j:end], j, end):
-            print("returned True")
-            return True
+    if len(sentence) > 1:
+        for j in range(1, len(sentence)):
+            print(f"trying <{P[2]}> on")
+            print(sentence[:j], sentence[j:])
+            if parse_V(sentence[:j]) and parse_NP(sentence[j:]):
+                print("returned True")
+                return True
 
     print("Failed VP Parse")
     return False
 
 
-def parse_N(sentence: list, start: int, end: int) -> bool:
+def parse_N(sentence: list) -> bool:
     print("parsing N")
 
-    for j in range(start, end):
-        print(j)
-        print(f"trying <{P[6]}> on")
-        print(sentence[start:j], sentence[j:end])
-        if str(sentence) in "Kaesebrot":
-            print("returned True")
-            return True
+    print(f"trying <{P[6]}> on {sentence}")
+    if len(sentence) == 1 and sentence[0] == "Kaesebrot":
+        print("returned True")
+        return True
+    print("returned False")
 
     print("Failed N Parse")
     return False
 
 
-def parse_V(sentence: list, start: int, end: int) -> bool:
+def parse_V(sentence: list) -> bool:
     print("parsing V")
 
-    for j in range(start, end):
-        print(j)
-        print(f"trying <{P[3]}> on")
-        print(sentence[start:j], sentence[j:end])
-        if str(sentence) in "isst":
-            print("returned True")
-            return True
+    print(f"trying <{P[3]}> on {sentence}")
+    if len(sentence) == 1 and sentence[0] == "isst":
+        print("returned True")
+        return True
+    print("returned False")
 
     print("Failed V Parse")
     return False
 
 
-def parse_Det(sentence: list, start: int, end: int) -> bool:
+def parse_Det(sentence: list) -> bool:
     print("parsing Det")
 
-    for j in range(start, end):
-        print(j)
-        print(f"trying <{P[5]}> on")
-        print(sentence[start:j], sentence[j:end])
-        if str(sentence) in "ein":
-            print("returned True")
-            return True
+    print(f"trying <{P[5]}> on {sentence}")
+    if len(sentence) == 1 and sentence[0] == "ein":
+        print("returned True")
+        return True
+    print("returned False")
 
     print("Failed Det Parse")
     return False
 
 
-print(f"\nRESULT - {parse_S(word, 0, len(word))}")
+print(f"\nRESULT - {parse_S(word)}")
