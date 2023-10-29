@@ -1,36 +1,41 @@
-sentence = ["Hans", "isst", "ein", "Kaesebrot"]
-sentence = sentence[1:]
+from nltk.parse import RecursiveDescentParser
+from nltk import Nonterminal, nonterminals, Production, CFG
 
+S, NP, VP, V, N, Det = nonterminals("S, NP, VP, V, N, Det")
 
-# print("True  - S  ", sentence[0:4])
-# print("True  - NP ", sentence[2:4])
-# print("False - N  ", sentence[0:1])
-# print("True  - VP ", sentence[1:4])
-# print("False - V  ", sentence[0:1])
+T = ["Hans", "isst", "Kaesebrot", "ein"]
+NT = ["S", "NP", "VP", "V", "N", "Det"]
+P = ["S → NP VP", "NP → Det N", "VP → V NP", "V → isst",
+     "NP → Hans", "Det → ein", "N → Kaesebrot"]
 
+nt1 = Nonterminal('S')
+nt2 = Nonterminal('NP')
+nt3 = Nonterminal('VP')
+nt4 = Nonterminal('V')
+nt5 = Nonterminal('N')
+nt6 = Nonterminal('Det')
 
-# for production in P:
-#     print("")
-#
-#     sides = production.split("→")
-#     left_side = sides[0].strip()
-#     right_side = sides[1].strip()
-#
-#     print(f"<{left_side}> geht nach <{right_side}>")
-#
-#     if left_side in S: print("Start")
-#     elif right_side in T: print("Terminal")
-#     else: print("Expansion")
+prod1 = Production(S, [NP, VP])
+prod2 = Production(NP, [Det, N])
+prod3 = Production(NP, ["Hans"])
+prod4 = Production(VP, [V, NP])
+prod5 = Production(N, ["Kaesebrot"])
+prod6 = Production(V, ["isst"])
+prod7 = Production(Det, ["ein"])
 
+grammar = CFG.fromstring("""
+S -> NP VP
+NP -> Det N
+NP -> "Hans"
+VP -> V NP
+N -> "Kaesebrot"
+V -> "isst"
+Det -> "ein"
+""")
 
-def splits(sent, begin, end):
+rd = RecursiveDescentParser(grammar)
 
-    if len(sent) == 1:
-        print(sent)
-    else:
-        for i in range(begin+1, end):
-            print(sent[begin:i], sent[i:end])
+sentence = "isst ein Kaesebrot".split()
 
-
-splits(sentence, 0, len(sentence))
-print([i for i in range(1,2)])
+for t in rd.parse(sentence):
+     print(t)
